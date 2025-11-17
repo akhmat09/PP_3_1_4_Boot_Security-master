@@ -1,4 +1,4 @@
-package ru.kata.spring.boot_security.demo.configs;
+package ru.kata.spring.boot_security.demo.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,42 +8,39 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import ru.kata.spring.boot_security.demo.handler.LoginSuccessHandler;
 
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig {
 
     private final UserDetailsService userDetailsService;
-    private final SuccessUserHandler successUserHandler;
+    private final LoginSuccessHandler loginSuccessHandler;
     private final PasswordEncoder passwordEncoder;
 
     public WebSecurityConfig(UserDetailsService userDetailsService,
-                             SuccessUserHandler successUserHandler,
+                             LoginSuccessHandler loginSuccessHandler,
                              PasswordEncoder passwordEncoder) {
         this.userDetailsService = userDetailsService;
-        this.successUserHandler = successUserHandler;
+        this.loginSuccessHandler = loginSuccessHandler;
         this.passwordEncoder = passwordEncoder;
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain configureHttpSecurity(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/", "/login").permitAll()
-                        .requestMatchers("/css/**", "/js/**").permitAll()
-                        .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
                         .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/", "/login").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .loginProcessingUrl("/process_login")
-                        .successHandler(successUserHandler)
-                        .failureUrl("/login?error")
+                        .successHandler(loginSuccessHandler)
                         .permitAll()
                 )
                 .logout(logout -> logout
-                        .logoutUrl("/logout")
                         .logoutSuccessUrl("/login?logout")
                         .permitAll()
                 );
@@ -52,7 +49,7 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public DaoAuthenticationProvider authenticationProvider() {
+    public DaoAuthenticationProvider createDaoAuthenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(userDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder);

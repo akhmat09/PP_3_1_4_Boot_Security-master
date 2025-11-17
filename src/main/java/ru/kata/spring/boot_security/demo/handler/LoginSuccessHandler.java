@@ -1,12 +1,12 @@
 package ru.kata.spring.boot_security.demo.handler;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collection;
 
@@ -27,13 +27,6 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
             }
         }
 
-        for (GrantedAuthority authority : authorities) {
-            if (authority.getAuthority().equals("ROLE_USER")) {
-                response.sendRedirect("/user");
-                return;
-            }
-        }
-
-        response.sendRedirect("/");
+        response.sendRedirect("/user");
     }
 }

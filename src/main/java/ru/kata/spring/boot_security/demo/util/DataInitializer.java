@@ -1,13 +1,13 @@
 package ru.kata.spring.boot_security.demo.util;
 
-import ru.kata.spring.boot_security.demo.entity.Role;
-import ru.kata.spring.boot_security.demo.entity.User;
-import ru.kata.spring.boot_security.demo.service.RoleService;
-import ru.kata.spring.boot_security.demo.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import ru.kata.spring.boot_security.demo.entity.Role;
+import ru.kata.spring.boot_security.demo.entity.User;
+import ru.kata.spring.boot_security.demo.service.RoleService;
+import ru.kata.spring.boot_security.demo.service.UserService;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -28,11 +28,11 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        initRoles();
-        initUsers();
+        initializeRoles();
+        initializeUsers();
     }
 
-    private void initRoles() {
+    private void initializeRoles() {
         if (roleService.findByName("ROLE_ADMIN") == null) {
             roleService.saveRole(new Role("ROLE_ADMIN"));
         }
@@ -42,12 +42,12 @@ public class DataInitializer implements CommandLineRunner {
         }
     }
 
-    private void initUsers() {
+    private void initializeUsers() {
         if (userService.findByUsername("admin") == null) {
             User admin = new User();
             admin.setUsername("admin");
             admin.setPassword(passwordEncoder.encode("admin"));
-            admin.setEmail("admin@example.com");
+            admin.setEmail("admin@mail.ru");
             admin.setFirstName("Admin");
             admin.setLastName("Adminov");
             admin.setAge(35);
@@ -64,10 +64,10 @@ public class DataInitializer implements CommandLineRunner {
             User user = new User();
             user.setUsername("user");
             user.setPassword(passwordEncoder.encode("user"));
-            user.setEmail("user@example.com");
+            user.setEmail("user@mail.ru");
             user.setFirstName("User");
             user.setLastName("Userov");
-            user.setAge(25);
+            user.setAge(30);
 
             Set<Role> userRoles = new HashSet<>();
             userRoles.add(roleService.findByName("ROLE_USER"));

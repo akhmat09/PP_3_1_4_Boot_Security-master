@@ -1,9 +1,9 @@
 package ru.kata.spring.boot_security.demo.entity;
 
-import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import jakarta.persistence.*;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -35,7 +35,6 @@ public class User implements UserDetails {
     )
     private Set<Role> roles = new HashSet<>();
 
-    // Constructors
     public User() {}
 
     public User(String username, String password, String email, String firstName, String lastName, int age) {
@@ -47,7 +46,6 @@ public class User implements UserDetails {
         this.age = age;
     }
 
-    // UserDetails implementation
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles;
@@ -73,7 +71,6 @@ public class User implements UserDetails {
         return true;
     }
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -138,29 +135,11 @@ public class User implements UserDetails {
         this.roles = roles;
     }
 
-    // Helper methods
     public void addRole(Role role) {
         this.roles.add(role);
     }
 
-    public void removeRole(Role role) {
-        this.roles.remove(role);
-    }
-
     public boolean hasRole(String roleName) {
         return roles.stream().anyMatch(role -> role.getName().equals(roleName));
-    }
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", username='" + username + '\'' +
-                ", email='" + email + '\'' +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", age=" + age +
-                ", roles=" + roles +
-                '}';
     }
 }

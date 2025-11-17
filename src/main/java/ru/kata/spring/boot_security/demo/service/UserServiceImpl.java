@@ -38,26 +38,35 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public User findByUsername(String username) {
-        User user = userRepository.findByUsername(username);
-        if (user != null) {
-            // Инициализируем роли
-            user.getRoles().size();
-        }
-        return user;
+        return userRepository.findByUsername(username);
     }
 
     @Override
     public void saveUser(User user) {
-        if (user.getPassword() != null && !user.getPassword().startsWith("$2a$")) {
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
-        }
+        encodeUserPassword(user);
         userRepository.save(user);
     }
 
     @Override
     public void updateUser(Long id, User updatedUser) {
         User existingUser = getUserById(id);
+        updateUserFields(existingUser, updatedUser);
+        userRepository.save(existingUser);
+    }
 
+    @Override
+    public void deleteUser(Long id) {
+        User user = getUserById(id);
+        userRepository.delete(user);
+    }
+
+    private void encodeUserPassword(User user) {
+        if (user.getPassword() != null && !user.getPassword().startsWith("$2a$")) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
+    }
+
+    private void updateUserFields(User existingUser, User updatedUser) {
         existingUser.setUsername(updatedUser.getUsername());
         existingUser.setEmail(updatedUser.getEmail());
         existingUser.setFirstName(updatedUser.getFirstName());
@@ -71,25 +80,5 @@ public class UserServiceImpl implements UserService {
         if (updatedUser.getRoles() != null) {
             existingUser.setRoles(updatedUser.getRoles());
         }
-
-        userRepository.save(existingUser);
-    }
-
-    @Override
-    public void deleteUser(Long id) {
-        User user = getUserById(id);
-        userRepository.delete(user);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public boolean existsByUsername(String username) {
-        return userRepository.existsByUsername(username);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public boolean existsByEmail(String email) {
-        return userRepository.existsByEmail(email);
     }
 }

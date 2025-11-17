@@ -1,6 +1,7 @@
 package ru.kata.spring.boot_security.demo.entity;
 
 import org.springframework.security.core.GrantedAuthority;
+
 import jakarta.persistence.*;
 import java.util.Set;
 
@@ -18,20 +19,17 @@ public class Role implements GrantedAuthority {
     @ManyToMany(mappedBy = "roles")
     private Set<User> users;
 
-    // Constructors
     public Role() {}
 
     public Role(String name) {
         this.name = name;
     }
 
-    // GrantedAuthority implementation
     @Override
     public String getAuthority() {
         return name;
     }
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -58,24 +56,6 @@ public class Role implements GrantedAuthority {
 
     @Override
     public String toString() {
-        return "Role{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Role role = (Role) o;
-
-        return name != null ? name.equals(role.name) : role.name == null;
-    }
-
-    @Override
-    public int hashCode() {
-        return name != null ? name.hashCode() : 0;
+        return name.replace("ROLE_", "");
     }
 }
