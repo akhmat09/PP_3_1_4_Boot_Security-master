@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -25,14 +26,23 @@ public class WebSecurityConfig {
         this.loginSuccessHandler = loginSuccessHandler;
         this.passwordEncoder = passwordEncoder;
     }
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> web.ignoring().requestMatchers("/js/**", "/css/**", "/webjars/**");
+    }
 
     @Bean
     public SecurityFilterChain configureHttpSecurity(HttpSecurity http) throws Exception {
         http
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/api/**") // Отключаем CSRF для API
+                )
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers("/", "/login").permitAll()
+                        .requestMatchers("/api/users/**", "/api/roles").hasRole("ADMIN")
+                        .requestMatchers("/api/current-user").authenticated()
+                        .requestMatchers("/", "/login", "/js/**", "/css/**", "/webjars/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
@@ -47,7 +57,6 @@ public class WebSecurityConfig {
 
         return http.build();
     }
-
     @Bean
     public DaoAuthenticationProvider createDaoAuthenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();

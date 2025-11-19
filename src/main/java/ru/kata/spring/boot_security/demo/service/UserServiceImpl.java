@@ -5,9 +5,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.kata.spring.boot_security.demo.entity.User;
+import ru.kata.spring.boot_security.demo.entity.Role;
 import ru.kata.spring.boot_security.demo.repository.UserRepository;
 
 import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Service
 @Transactional
@@ -15,11 +18,13 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final RoleService roleService;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, RoleService roleService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.roleService = roleService;
     }
 
     @Override
@@ -43,6 +48,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void saveUser(User user) {
+        if (user.getRoles() == null || user.getRoles().isEmpty()) {
+            Set<Role> defaultRoles = new HashSet<>();
+            Role userRole = roleService.findByName("ROLE_USER");
+            if (userRole != null) {
+                defaultRoles.add(userRole);
+            }
+            user.setRoles(defaultRoles);
+        }
+
         encodeUserPassword(user);
         userRepository.save(user);
     }
@@ -77,7 +91,7 @@ public class UserServiceImpl implements UserService {
             existingUser.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
         }
 
-        if (updatedUser.getRoles() != null) {
+        if (updatedUser.getRoles() != null && !updatedUser.getRoles().isEmpty()) {
             existingUser.setRoles(updatedUser.getRoles());
         }
     }
